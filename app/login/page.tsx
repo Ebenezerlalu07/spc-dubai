@@ -75,7 +75,7 @@ export default function LoginPage() {
                                 />
                             </svg>
                         </div>
-
+{/* 
                         <div>
                             <h2 className="font-aligra text-2xl leading-none">
                                 SPC Dubai
@@ -84,7 +84,7 @@ export default function LoginPage() {
                             <p className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/70">
                                 Church Member Directory
                             </p>
-                        </div>
+                        </div> */}
                     </motion.div>
 
                     {/* Left Content */}

@@ -111,14 +111,14 @@ export default function SignupPage() {
                             </svg>
                         </div>
 
-                        <div>
+                        {/* <div>
                             <h2 className="font-aligra text-2xl leading-none">
                                 SPC Dubai
                             </h2>
                             <p className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/70">
                                 Church Member Directory
                             </p>
-                        </div>
+                        </div> */}
                     </motion.div>
 
                     {/* Left Content */}
