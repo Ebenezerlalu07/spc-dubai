@@ -93,7 +93,7 @@ export default function SignupPage() {
                         <div className="flex h-20 w-20 items-center justify-center overflow-hidden p-2 backdrop-blur-md sm:h-24 sm:w-24">
                             <a href="/">
                                 <Image
-                                    src="/images/logo.png"
+                                    src="/images/Logo.png"
                                     alt="SPC Dubai Church Logo"
                                     width={96}
                                     height={96}
