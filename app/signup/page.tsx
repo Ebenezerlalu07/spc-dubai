@@ -90,7 +90,7 @@ export default function SignupPage() {
                         transition={{ duration: 0.7 }}
                         className="flex items-center"
                     >
-                        <div className="flex h-20 w-20 items-center justify-center overflow-hidden p-2 backdrop-blur-md sm:h-24 sm:w-24">
+                        <div className="flex h-20 w-20 items-center justify-center overflow-hidden p-2  sm:h-24 sm:w-24">
                             <a href="/">
                                 <Image
                                     src="/images/Logo.png"

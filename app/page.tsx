@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   ArrowRight,
   BookOpen,
@@ -90,57 +91,25 @@ export default function Home() {
       {/* Centered main content */}
       <div className="relative z-10 mx-auto w-full max-w-[850px] text-center">
 
-        {/* Animated church emblem */}
+
+        {/* Animated Church Logo */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.75 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-          className="relative mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-full border border-[#d9b877]/50 bg-white/10 backdrop-blur-xl sm:mb-9 sm:h-24 sm:w-24 lg:h-28 lg:w-28"
+          initial={{ opacity: 0, scale: 0.75, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{
+            duration: 1,
+            ease: "easeOut",
+          }}
+          className="relative mx-auto mb-7 flex items-center justify-center sm:mb-9"
         >
-          <motion.div
-            className="absolute inset-0 rounded-full"
-            animate={{
-              boxShadow: [
-                "0 0 20px rgba(217,184,119,0.10)",
-                "0 0 55px rgba(217,184,119,0.30)",
-                "0 0 20px rgba(217,184,119,0.10)",
-              ],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+          <Image
+            src="/images/Logo.png"
+            alt="SPC Dubai Church Logo"
+            width={140}
+            height={140}
+            className="h-auto w-28 object-contain sm:w-36 lg:w-40"
+            priority
           />
-
-          <div className="absolute inset-[7px] rounded-full border border-[#d9b877]/20" />
-
-          <svg
-            viewBox="0 0 64 64"
-            className="h-12 w-12 text-[#d9b877] sm:h-14 sm:w-14 lg:h-16 lg:w-16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <motion.path
-              d="M32 5V47M19 19H45"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1.5, delay: 0.3 }}
-            />
-
-            <motion.path
-              d="M12 45Q22 39 32 45Q42 39 52 45V54Q42 48 32 54Q22 48 12 54V45Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1.5, delay: 0.7 }}
-            />
-          </svg>
         </motion.div>
 
         {/* Welcome label */}
