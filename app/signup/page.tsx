@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
     ArrowLeft,
     ArrowRight,
@@ -82,43 +83,24 @@ export default function SignupPage() {
                     {/* Dark Green Overlay */}
                     <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#031b19]/70 via-[#062e29]/45 to-[#031b19]/95" />
 
-                    {/* Church Branding */}
+                    {/* SPC Dubai Branding */}
                     <motion.div
                         initial={{ opacity: 0, y: -15 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
-                        className="flex items-center gap-3"
+                        className="flex items-center"
                     >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d9b877]/50 bg-white/10 backdrop-blur-md">
-                            <svg
-                                viewBox="0 0 64 64"
-                                className="h-7 w-7 text-[#d9b877]"
-                                fill="none"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M32 5V47M19 19H45"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                />
-                                <path
-                                    d="M12 45Q22 39 32 45Q42 39 52 45V54Q42 48 32 54Q22 48 12 54V45Z"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
+                        <div className="flex h-20 w-20 items-center justify-center overflow-hidden p-2 backdrop-blur-md sm:h-24 sm:w-24">
+                            <a href="/">
+                                <Image
+                                    src="/images/logo.png"
+                                    alt="SPC Dubai Church Logo"
+                                    width={96}
+                                    height={96}
+                                    className="h-full w-full object-contain"
+                                    priority
+                                /></a>
                         </div>
-
-                        {/* <div>
-                            <h2 className="font-aligra text-2xl leading-none">
-                                SPC Dubai
-                            </h2>
-                            <p className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/70">
-                                Church Member Directory
-                            </p>
-                        </div> */}
                     </motion.div>
 
                     {/* Left Content */}
