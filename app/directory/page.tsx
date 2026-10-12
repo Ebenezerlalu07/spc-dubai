@@ -9,11 +9,15 @@ import {
     ArrowLeft,
     ArrowRight,
     ChevronDown,
+    Crown,
+    ExternalLink,
     Grid2X2,
+    Heart,
     List,
     Mail,
     MapPin,
     MapPinned,
+    Navigation,
     Phone,
     Search,
     SlidersHorizontal,
@@ -23,7 +27,7 @@ import {
 } from "lucide-react";
 
 // ========================================
-// LOCATION THEMES
+// LOCATION COLOR THEMES
 // ========================================
 
 const locations = [
@@ -109,17 +113,35 @@ type Member = {
     name: string;
     location: LocationId;
     area: string;
+    family: string[];
+    image?: string;
     phone?: string;
     residencePhone?: string;
     email?: string;
     uaeAddress?: string;
     indiaAddress?: string;
-    family: string[];
-    image?: string;
+    mapUrl?: string;
 };
 
 // ========================================
-// FICTIONAL SAMPLE DIRECTORY DATA
+// PASTOR DETAILS
+// Replace placeholders with approved data
+// ========================================
+
+const pastor = {
+    name: "Pastor's Name",
+    designation: "Church Pastor",
+    spouse: "Pastor's Wife",
+    children: ["Child One", "Child Two"],
+    photo: "/images/pastor.jpg",
+    phone: "",
+    email: "",
+    message:
+        "Together in faith, united in love, and growing as one family in Christ.",
+};
+
+// ========================================
+// DEMO DIRECTORY MEMBERS
 // ========================================
 
 const members: Member[] = [
@@ -128,11 +150,7 @@ const members: Member[] = [
         name: "Sherin Mathew",
         location: "ajman",
         area: "Ajman",
-        phone: "+971501234567",
-        email: "sample1@example.com",
         family: ["Spouse A", "Child A", "Child B"],
-        uaeAddress: "Sample address, Ajman, UAE",
-        indiaAddress: "Sample address, Kerala, India",
         image: "/images/sherin.jpg",
     },
     {
@@ -242,53 +260,86 @@ const members: Member[] = [
 ];
 
 // ========================================
-// HELPER
+// HELPERS
 // ========================================
 
 function getLocation(id: LocationId) {
-    return locations.find((location) => location.id === id)!;
+    return locations.find((item) => item.id === id)!;
+}
+
+function safeGoogleMapsUrl(url?: string) {
+    if (!url) return null;
+
+    try {
+        const parsed = new URL(url);
+        const allowedHosts = [
+            "google.com",
+            "www.google.com",
+            "maps.google.com",
+            "maps.app.goo.gl",
+            "goo.gl",
+        ];
+
+        return parsed.protocol === "https:" &&
+            allowedHosts.includes(parsed.hostname)
+            ? url
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+function getMapUrl(member: Member) {
+    const exact = safeGoogleMapsUrl(member.mapUrl);
+
+    if (exact) return exact;
+
+    return (
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(`${member.area}, United Arab Emirates`)
+    );
 }
 
 // ========================================
-// SINGLE PERSON PROFILE PHOTO
+// IMAGE WITH FALLBACK
 // ========================================
 
-function MemberPhoto({
-    member,
+function ProfileImage({
+    src,
+    alt,
+    fallbackColor = "#0b5547",
     className = "",
-    sizes = "(max-width: 640px) 100px, 130px",
 }: {
-    member: Member;
+    src?: string;
+    alt: string;
+    fallbackColor?: string;
     className?: string;
-    sizes?: string;
 }) {
     const [failed, setFailed] = useState(false);
-    const location = getLocation(member.location);
 
     useEffect(() => {
         setFailed(false);
-    }, [member.image]);
+    }, [src]);
 
     return (
         <div
             className={`relative h-full w-full overflow-hidden ${className}`}
-            style={{ backgroundColor: location.light }}
         >
-            {member.image && !failed ? (
+            {src && !failed ? (
                 <Image
-                    src={member.image}
-                    alt={`${member.name} profile photograph`}
+                    src={src}
+                    alt={alt}
                     fill
-                    sizes={sizes}
-                    className="object-cover object-top"
+                    sizes="(max-width: 768px) 100vw, 480px"
+                    className="object-cover object-center"
                     onError={() => setFailed(true)}
                 />
             ) : (
-                <div className="flex h-full w-full items-center justify-center">
+                <div className="flex h-full w-full items-center justify-center bg-[#edf2ee]">
                     <UserRound
-                        size={43}
-                        strokeWidth={1.3}
-                        style={{ color: location.color }}
+                        size={48}
+                        strokeWidth={1.2}
+                        style={{ color: fallbackColor }}
                     />
                 </div>
             )}
@@ -297,17 +348,167 @@ function MemberPhoto({
 }
 
 // ========================================
+// PASTOR & FAMILY FEATURED SECTION
+// ========================================
+
+function PastorSection() {
+    const [imageFailed, setImageFailed] = useState(false);
+
+    return (
+        <section className="mb-12">
+            {/* Section heading */}
+            <div className="mb-6 flex items-center gap-3">
+                <span className="h-10 w-1 rounded-full bg-[#d9b877]" />
+
+                <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#ad8b52]">
+                        Our Spiritual Leadership
+                    </p>
+
+                    <h2 className="font-aligra mt-1 text-3xl text-[#173b30] sm:text-4xl">
+                        Meet Our Pastor & Family
+                    </h2>
+                </div>
+            </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.65 }}
+                className="relative grid overflow-hidden rounded-[30px] border border-[#e3eae1] bg-white shadow-[0_15px_55px_rgba(10,55,35,0.08)] lg:grid-cols-[46%_54%]"
+            >
+                {/* Pastor family image */}
+                <div className="relative min-h-[280px] overflow-hidden bg-[#e8eee9] sm:min-h-[380px] lg:min-h-[460px]">
+                    {!imageFailed ? (
+                        <Image
+                            src={pastor.photo}
+                            alt="Pastor and family"
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 46vw"
+                            className="object-cover object-center transition-transform duration-700 hover:scale-[1.03]"
+                            onError={() => setImageFailed(true)}
+                            priority
+                        />
+                    ) : (
+                        <div className="flex h-full min-h-[280px] flex-col items-center justify-center gap-4 bg-[#e8eee9]">
+                            <UsersRound
+                                size={72}
+                                strokeWidth={1}
+                                className="text-[#0b5547]/50"
+                            />
+
+                            <span className="text-sm text-[#688375]">
+                                Pastor Family Photograph
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#052e27]/60 via-transparent to-transparent" />
+
+                    <span className="absolute bottom-5 left-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#063b32]/80 px-4 py-2 text-xs font-semibold text-white backdrop-blur-lg sm:bottom-7 sm:left-7">
+                        <Heart size={14} className="text-[#e3c994]" />
+                        Our Pastor's Family
+                    </span>
+                </div>
+
+                {/* Pastor content */}
+                <div className="relative flex flex-col justify-center overflow-hidden px-6 py-8 sm:px-10 sm:py-12 lg:px-12">
+                    <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#edf5ee]" />
+
+                    <div className="relative z-10">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-[#f3ecdb] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#a27d39]">
+                            <Crown size={15} />
+                            {pastor.designation}
+                        </span>
+
+                        <h3 className="font-aligra mt-5 text-4xl leading-tight text-[#103c30] sm:text-5xl">
+                            {pastor.name}
+                        </h3>
+
+                        <p className="mt-2 text-sm font-medium text-[#a48246]">
+                            Satwa Pentecostal Church of God
+                        </p>
+
+                        <div className="my-6 h-px bg-[#e9eee8]" />
+
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#edf5ef] text-[#0b5547]">
+                                    <Heart size={18} />
+                                </div>
+
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#91a095]">
+                                        Spouse
+                                    </p>
+                                    <p className="mt-1 text-sm font-semibold text-[#345b49]">
+                                        {pastor.spouse}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#edf5ef] text-[#0b5547]">
+                                    <UsersRound size={18} />
+                                </div>
+
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#91a095]">
+                                        Children
+                                    </p>
+                                    <p className="mt-1 text-sm font-semibold leading-6 text-[#345b49]">
+                                        {pastor.children.join(", ")}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <blockquote className="mt-7 border-l-[3px] border-[#d9b877] pl-4 text-sm italic leading-7 text-[#708778]">
+                            &ldquo;{pastor.message}&rdquo;
+                        </blockquote>
+
+                        {(pastor.phone || pastor.email) && (
+                            <div className="mt-7 flex flex-wrap gap-3">
+                                {pastor.phone && (
+                                    <a
+                                        href={`tel:${pastor.phone.replace(/[^\d+]/g, "")}`}
+                                        className="inline-flex items-center gap-2 rounded-full bg-[#0b5547] px-5 py-3 text-xs font-semibold text-white transition hover:bg-[#073c33]"
+                                    >
+                                        <Phone size={15} />
+                                        Contact Pastor
+                                    </a>
+                                )}
+
+                                {pastor.email && (
+                                    <a
+                                        href={`mailto:${pastor.email}`}
+                                        className="inline-flex items-center gap-2 rounded-full border border-[#dce6dc] bg-white px-5 py-3 text-xs font-semibold text-[#0b5547] transition hover:bg-[#edf5ef]"
+                                    >
+                                        <Mail size={15} />
+                                        Send Email
+                                    </a>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </motion.div>
+        </section>
+    );
+}
+
+// ========================================
 // MEMBER CARD
+// No map buttons on the card
 // ========================================
 
 function MemberCard({
     member,
     onView,
-    view,
 }: {
     member: Member;
     onView: (member: Member) => void;
-    view: "grid" | "list";
 }) {
     const location = getLocation(member.location);
 
@@ -316,27 +517,26 @@ function MemberCard({
             layout
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96 }}
+            exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.3 }}
-            className="group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-[#e4eae4] bg-white shadow-[0_5px_24px_rgba(10,50,35,0.045)] transition-shadow duration-300 hover:shadow-[0_18px_45px_rgba(10,50,35,0.12)]"
+            className="group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-[#e4eae4] bg-white shadow-[0_6px_25px_rgba(10,50,35,0.045)] transition-shadow duration-300 hover:shadow-[0_18px_45px_rgba(10,50,35,0.12)]"
         >
-            {/* Location accent */}
             <div
                 className="absolute inset-x-0 top-0 h-1.5"
                 style={{ backgroundColor: location.color }}
             />
 
-            <div className="flex flex-1 flex-col p-5 pt-7 sm:p-6 sm:pt-8">
-                <div
-                    className={`flex items-start gap-4 ${view === "list" ? "sm:gap-6" : ""
-                        }`}
-                >
-                    {/* Person photo */}
-                    <div className="h-[110px] w-[90px] shrink-0 overflow-hidden rounded-2xl border border-[#e9ece7] shadow-sm sm:h-[125px] sm:w-[105px]">
-                        <MemberPhoto member={member} />
+            <div className="flex h-full flex-col p-5 pt-7 sm:p-6 sm:pt-8">
+                <div className="flex items-start gap-4">
+                    {/* One person image */}
+                    <div className="h-[112px] w-[90px] shrink-0 overflow-hidden rounded-2xl border border-[#e9ece7] shadow-sm sm:h-[125px] sm:w-[105px]">
+                        <ProfileImage
+                            src={member.image}
+                            alt={`${member.name} profile photograph`}
+                            fallbackColor={location.color}
+                        />
                     </div>
 
-                    {/* Basic information */}
                     <div className="min-w-0 flex-1">
                         <h3 className="font-aligra text-[25px] leading-tight text-[#173b30] sm:text-[29px]">
                             {member.name}
@@ -348,7 +548,7 @@ function MemberCard({
                         </p>
 
                         <span
-                            className="mt-3 inline-flex max-w-full items-center rounded-full px-3 py-1.5 text-[10px] font-semibold"
+                            className="mt-3 inline-flex max-w-full rounded-full px-3 py-1.5 text-[10px] font-semibold"
                             style={{
                                 backgroundColor: location.light,
                                 color: location.color,
@@ -362,7 +562,7 @@ function MemberCard({
                                 href={`tel:${member.phone.replace(/[^\d+]/g, "")}`}
                                 className="mt-3 flex items-center gap-2 text-xs text-[#526b5c] hover:underline"
                             >
-                                <Phone size={13} className="shrink-0" />
+                                <Phone size={13} />
                                 {member.phone}
                             </a>
                         )}
@@ -371,7 +571,7 @@ function MemberCard({
 
                 <div className="my-5 h-px bg-[#e9eee8]" />
 
-                {/* Family list */}
+                {/* Family names only */}
                 <div className="flex items-start gap-3">
                     <div
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
@@ -389,37 +589,28 @@ function MemberCard({
                         </p>
 
                         <p className="mt-1 text-sm leading-6 text-[#536a5d]">
-                            {member.family.length > 0
+                            {member.family.length
                                 ? member.family.join(", ")
                                 : "No family members listed"}
                         </p>
                     </div>
                 </div>
 
-                {/* Contact details */}
-                {member.email && (
-                    <div className="mt-4 flex min-w-0 items-center gap-2 text-xs text-[#70887a]">
-                        <Mail size={14} className="shrink-0" />
-                        <span className="truncate">{member.email}</span>
-                    </div>
-                )}
-
-                {/* View details button */}
                 <button
                     type="button"
                     onClick={() => onView(member)}
-                    className="mt-auto flex w-full items-center justify-between rounded-xl px-5 py-3.5 pt-4 text-sm font-semibold transition hover:brightness-95"
+                    className="mt-auto flex w-full items-center justify-between rounded-xl px-5 py-3.5 text-sm font-semibold transition hover:brightness-95"
                     style={{
+                        marginTop: "24px",
                         backgroundColor: location.light,
                         color: location.color,
-                        marginTop: "24px",
                     }}
                 >
                     View Member Details
 
                     <ArrowRight
                         size={18}
-                        className="transition-transform duration-300 group-hover:translate-x-1"
+                        className="transition-transform group-hover:translate-x-1"
                     />
                 </button>
             </div>
@@ -428,7 +619,8 @@ function MemberCard({
 }
 
 // ========================================
-// MEMBER DETAILS MODAL
+// MEMBER DETAILS POPUP
+// Google Maps appears ONLY here
 // ========================================
 
 function MemberDetails({
@@ -439,20 +631,21 @@ function MemberDetails({
     onClose: () => void;
 }) {
     const location = getLocation(member.location);
+    const exactMap = safeGoogleMapsUrl(member.mapUrl);
 
     useEffect(() => {
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
 
-        function handleEscape(event: KeyboardEvent) {
+        function onKeyDown(event: KeyboardEvent) {
             if (event.key === "Escape") onClose();
         }
 
-        document.addEventListener("keydown", handleEscape);
+        document.addEventListener("keydown", onKeyDown);
 
         return () => {
             document.body.style.overflow = previousOverflow;
-            document.removeEventListener("keydown", handleEscape);
+            document.removeEventListener("keydown", onKeyDown);
         };
     }, [onClose]);
 
@@ -474,18 +667,22 @@ function MemberDetails({
                 onClick={(event) => event.stopPropagation()}
                 className="max-h-[92dvh] w-full max-w-[650px] overflow-y-auto rounded-[28px] bg-white shadow-2xl"
             >
-                {/* Modal header */}
+                {/* Member photo and name */}
                 <div
-                    className="relative flex items-center gap-5 px-5 py-8 sm:px-8"
+                    className="relative flex items-center gap-4 px-5 py-8 sm:gap-5 sm:px-8"
                     style={{ backgroundColor: location.light }}
                 >
                     <div className="h-[135px] w-[105px] shrink-0 overflow-hidden rounded-2xl border border-white/70 bg-white shadow-sm sm:h-[155px] sm:w-[125px]">
-                        <MemberPhoto member={member} />
+                        <ProfileImage
+                            src={member.image}
+                            alt={`${member.name} profile photograph`}
+                            fallbackColor={location.color}
+                        />
                     </div>
 
                     <div className="min-w-0 flex-1">
                         <span
-                            className="inline-flex rounded-full bg-white/70 px-3 py-1.5 text-[10px] font-semibold"
+                            className="inline-flex max-w-full rounded-full bg-white/80 px-3 py-1.5 text-[10px] font-semibold"
                             style={{ color: location.color }}
                         >
                             {location.name}
@@ -508,13 +705,12 @@ function MemberDetails({
                         type="button"
                         onClick={onClose}
                         aria-label="Close member details"
-                        className="absolute right-3 top-3 rounded-full bg-white p-2 text-[#173b30] shadow-sm transition hover:bg-[#f7f8f5]"
+                        className="absolute right-3 top-3 rounded-full bg-white p-2 text-[#173b30] shadow-sm"
                     >
                         <X size={19} />
                     </button>
                 </div>
 
-                {/* Modal content */}
                 <div className="space-y-7 p-6 sm:p-8">
                     {/* Family members */}
                     <section>
@@ -527,11 +723,11 @@ function MemberDetails({
                             className="rounded-2xl p-5"
                             style={{ backgroundColor: location.light }}
                         >
-                            {member.family.length > 0 ? (
+                            {member.family.length ? (
                                 <div className="space-y-3">
                                     {member.family.map((person, index) => (
                                         <div
-                                            key={index}
+                                            key={`${person}-${index}`}
                                             className="flex items-center gap-3 text-sm text-[#355246]"
                                         >
                                             <span
@@ -553,7 +749,7 @@ function MemberDetails({
                         </div>
                     </section>
 
-                    {/* Contact details */}
+                    {/* Contact */}
                     <section>
                         <h3 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#829589]">
                             <Phone size={17} />
@@ -566,22 +762,16 @@ function MemberDetails({
                                     href={`tel:${member.phone.replace(/[^\d+]/g, "")}`}
                                     className="flex items-center gap-3 text-sm text-[#355246] hover:underline"
                                 >
-                                    <Phone
-                                        size={17}
-                                        style={{ color: location.color }}
-                                    />
+                                    <Phone size={17} style={{ color: location.color }} />
                                     {member.phone}
                                 </a>
                             )}
 
                             {member.residencePhone && (
-                                <div className="flex items-center gap-3 text-sm text-[#355246]">
-                                    <Phone
-                                        size={17}
-                                        style={{ color: location.color }}
-                                    />
+                                <p className="flex items-center gap-3 text-sm text-[#355246]">
+                                    <Phone size={17} style={{ color: location.color }} />
                                     Residence: {member.residencePhone}
-                                </div>
+                                </p>
                             )}
 
                             {member.email && (
@@ -589,10 +779,7 @@ function MemberDetails({
                                     href={`mailto:${member.email}`}
                                     className="flex items-center gap-3 break-all text-sm text-[#355246] hover:underline"
                                 >
-                                    <Mail
-                                        size={17}
-                                        style={{ color: location.color }}
-                                    />
+                                    <Mail size={17} style={{ color: location.color }} />
                                     {member.email}
                                 </a>
                             )}
@@ -607,7 +794,7 @@ function MemberDetails({
                         </div>
                     </section>
 
-                    {/* UAE / India addresses */}
+                    {/* Addresses */}
                     <section>
                         <h3 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#829589]">
                             <MapPinned size={17} />
@@ -621,7 +808,7 @@ function MemberDetails({
                                 </p>
 
                                 <p className="text-sm leading-6 text-[#355246]">
-                                    {member.uaeAddress || "Not added yet"}
+                                    {member.uaeAddress || `${member.area}, UAE`}
                                 </p>
                             </div>
 
@@ -634,6 +821,72 @@ function MemberDetails({
                                     {member.indiaAddress || "Not added yet"}
                                 </p>
                             </div>
+                        </div>
+                    </section>
+
+                    {/* MAP LOCATION - POPUP ONLY */}
+                    <section>
+                        <h3 className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#829589]">
+                            <Navigation size={17} />
+                            Family Location
+                        </h3>
+
+                        <div
+                            className="rounded-[22px] border p-5"
+                            style={{
+                                backgroundColor: location.light,
+                                borderColor: `${location.color}25`,
+                            }}
+                        >
+                            <div className="flex items-start gap-3">
+                                <div
+                                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white"
+                                    style={{ color: location.color }}
+                                >
+                                    <MapPinned size={23} />
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                    <p
+                                        className="text-[10px] font-bold uppercase tracking-[0.14em]"
+                                        style={{ color: location.color }}
+                                    >
+                                        Location in UAE
+                                    </p>
+
+                                    <h4 className="mt-1 text-base font-bold text-[#254b3b]">
+                                        {member.area}
+                                    </h4>
+
+                                    <p className="mt-1 text-xs leading-5 text-[#6e8476]">
+                                        {member.uaeAddress || "United Arab Emirates"}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <a
+                                href={getMapUrl(member)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-5 flex w-full items-center justify-between gap-3 rounded-xl bg-white px-4 py-3.5 font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                                style={{ color: location.color }}
+                            >
+                                <span className="flex items-center gap-2.5 text-sm">
+                                    <Navigation size={18} />
+                                    {exactMap
+                                        ? "Open Family Location"
+                                        : "View Area on Google Maps"}
+                                </span>
+
+                                <ExternalLink size={17} />
+                            </a>
+
+                            {!exactMap && (
+                                <p className="mt-3 text-[11px] leading-5 text-[#809285]">
+                                    This opens the general area. An exact family
+                                    location has not been added.
+                                </p>
+                            )}
                         </div>
                     </section>
 
@@ -682,8 +935,6 @@ export default function DirectoryPage() {
                 "subtitle" in location ? location.subtitle : "",
                 member.phone || "",
                 member.email || "",
-                member.uaeAddress || "",
-                member.indiaAddress || "",
                 ...member.family,
             ]
                 .join(" ")
@@ -705,9 +956,7 @@ export default function DirectoryPage() {
 
     return (
         <main className="min-h-screen bg-[#f7f8f5] text-[#173b30]">
-
-
-            {/* Hero */}
+            {/* HERO */}
             <section className="relative overflow-hidden bg-[#073e36] px-5 py-12 text-white sm:px-8 sm:py-16 lg:px-12">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,#206858_0%,transparent_55%)]" />
 
@@ -719,16 +968,24 @@ export default function DirectoryPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.65 }}
                     >
+                        <Link
+                            href="/"
+                            className="mb-7 inline-flex items-center gap-2 text-xs font-medium text-white/65 transition hover:text-white"
+                        >
+                            <ArrowLeft size={15} />
+                            Back to Home
+                        </Link>
+
                         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-[#d9b877]">
                             Satwa Pentecostal Church of God
                         </p>
 
-                        <h2 className="font-aligra text-5xl leading-tight sm:text-6xl lg:text-7xl">
+                        <h1 className="font-aligra text-5xl leading-tight sm:text-6xl lg:text-7xl">
                             Member{" "}
                             <span className="text-[#d9b877]">
                                 Directory
                             </span>
-                        </h2>
+                        </h1>
 
                         <p className="mt-4 max-w-xl text-sm leading-7 text-white/70 sm:text-base">
                             Find and connect with our church families
@@ -739,7 +996,7 @@ export default function DirectoryPage() {
                         <div className="mt-7 flex flex-wrap gap-3">
                             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs text-white/85">
                                 <UsersRound size={15} />
-                                {members.length} Sample Members
+                                {members.length} Sample Entries
                             </span>
 
                             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs text-white/85">
@@ -751,9 +1008,11 @@ export default function DirectoryPage() {
                 </div>
             </section>
 
-            {/* Main content */}
             <section className="mx-auto max-w-[1320px] px-5 py-10 sm:px-8 lg:px-10 lg:py-12">
-                {/* Search bar */}
+                {/* PASTOR AND FAMILY - TOP FEATURE */}
+                <PastorSection />
+
+                {/* SEARCH */}
                 <div className="mb-8 flex flex-col gap-4 sm:flex-row">
                     <div className="relative flex-1">
                         <Search
@@ -764,7 +1023,9 @@ export default function DirectoryPage() {
                         <input
                             type="search"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(event) =>
+                                setSearch(event.target.value)
+                            }
                             placeholder="Search members, families or locations..."
                             aria-label="Search member directory"
                             className="h-[58px] w-full rounded-2xl border border-[#e0e7df] bg-white pl-14 pr-5 text-sm text-[#173b30] shadow-sm outline-none transition placeholder:text-[#9ca9a0] focus:border-[#0b5547] focus:ring-4 focus:ring-[#0b5547]/5"
@@ -787,13 +1048,13 @@ export default function DirectoryPage() {
                     </button>
                 </div>
 
-                {/* Location filters */}
+                {/* FILTERS */}
                 <div className="mb-10">
                     <div className="mb-5 flex items-center justify-between gap-3">
                         <div>
-                            <h3 className="text-lg font-bold">
+                            <h2 className="text-lg font-bold">
                                 Browse by Location
-                            </h3>
+                            </h2>
 
                             <p className="mt-1 text-xs text-[#82948a]">
                                 Select an area to view its members
@@ -816,8 +1077,8 @@ export default function DirectoryPage() {
                             type="button"
                             onClick={() => setSelectedLocation("all")}
                             className={`rounded-full px-5 py-3 text-xs font-semibold transition ${selectedLocation === "all"
-                                ? "bg-[#0b5547] text-white shadow-md"
-                                : "border border-[#e1e7df] bg-white text-[#577064] hover:bg-[#edf3ed]"
+                                    ? "bg-[#0b5547] text-white shadow-md"
+                                    : "border border-[#e1e7df] bg-white text-[#577064]"
                                 }`}
                         >
                             All Locations
@@ -854,15 +1115,12 @@ export default function DirectoryPage() {
                         })}
                     </div>
 
-                    {/* Expanded location grid */}
+                    {/* EXPANDED LOCATION GRID */}
                     <AnimatePresence>
                         {showLocations && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
-                                animate={{
-                                    opacity: 1,
-                                    height: "auto",
-                                }}
+                                animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
                                 className="overflow-hidden"
                             >
@@ -900,7 +1158,7 @@ export default function DirectoryPage() {
                                                 </p>
 
                                                 <p className="mt-1 text-xs text-[#819288]">
-                                                    {count} sample members
+                                                    {count} entries
                                                 </p>
                                             </button>
                                         );
@@ -911,7 +1169,7 @@ export default function DirectoryPage() {
                     </AnimatePresence>
                 </div>
 
-                {/* Results header */}
+                {/* RESULTS HEADING */}
                 <div className="mb-7 flex flex-wrap items-center justify-between gap-4 border-b border-[#e5eae4] pb-5">
                     <div className="flex items-center gap-3">
                         {activeLocation && (
@@ -924,11 +1182,11 @@ export default function DirectoryPage() {
                         )}
 
                         <div>
-                            <h3 className="font-aligra text-3xl sm:text-4xl">
+                            <h2 className="font-aligra text-3xl sm:text-4xl">
                                 {activeLocation
                                     ? activeLocation.name
                                     : "All Church Members"}
-                            </h3>
+                            </h2>
 
                             {activeLocation &&
                                 "subtitle" in activeLocation && (
@@ -944,7 +1202,6 @@ export default function DirectoryPage() {
                             {filteredMembers.length} Results
                         </span>
 
-                        {/* Grid/List toggle */}
                         <div className="flex items-center rounded-xl border border-[#e1e7df] bg-white p-1">
                             <button
                                 type="button"
@@ -952,8 +1209,8 @@ export default function DirectoryPage() {
                                 aria-label="Grid view"
                                 aria-pressed={view === "grid"}
                                 className={`rounded-lg p-2 ${view === "grid"
-                                    ? "bg-[#e8f1ea] text-[#0b5547]"
-                                    : "text-[#9aaa9e]"
+                                        ? "bg-[#e8f1ea] text-[#0b5547]"
+                                        : "text-[#9aaa9e]"
                                     }`}
                             >
                                 <Grid2X2 size={17} />
@@ -965,8 +1222,8 @@ export default function DirectoryPage() {
                                 aria-label="List view"
                                 aria-pressed={view === "list"}
                                 className={`rounded-lg p-2 ${view === "list"
-                                    ? "bg-[#e8f1ea] text-[#0b5547]"
-                                    : "text-[#9aaa9e]"
+                                        ? "bg-[#e8f1ea] text-[#0b5547]"
+                                        : "text-[#9aaa9e]"
                                     }`}
                             >
                                 <List size={18} />
@@ -975,7 +1232,7 @@ export default function DirectoryPage() {
                     </div>
                 </div>
 
-                {/* Member cards */}
+                {/* MEMBERS */}
                 {filteredMembers.length > 0 ? (
                     <motion.div
                         layout
@@ -991,7 +1248,6 @@ export default function DirectoryPage() {
                                     key={member.id}
                                     member={member}
                                     onView={setSelectedMember}
-                                    view={view}
                                 />
                             ))}
                         </AnimatePresence>
@@ -1008,7 +1264,7 @@ export default function DirectoryPage() {
                         </h3>
 
                         <p className="mt-2 text-sm text-[#899a8e]">
-                            Try another name or choose a different location.
+                            Try another name or choose another location.
                         </p>
 
                         <button
@@ -1022,7 +1278,7 @@ export default function DirectoryPage() {
                 )}
             </section>
 
-            {/* Member details popup */}
+            {/* POPUP */}
             <AnimatePresence>
                 {selectedMember && (
                     <MemberDetails
